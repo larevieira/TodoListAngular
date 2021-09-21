@@ -1,4 +1,5 @@
 import {  Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Task } from '../model/task.model';
 
 
@@ -14,22 +15,32 @@ import { Task } from '../model/task.model';
 export class ListComponent implements OnInit {
 
   taskList: Task[] = [];
-  task : String = "";
+  task : Task= null;
+  public form: FormGroup;
 
 
   ngOnInit() {
   }
 
-  constructor() {
-    this.task = '';
+  constructor(private formB: FormBuilder) {
+    this.form = this.formB.group({
+      description:['', Validators.required]
+    })
+    this.task = null;
     this.taskList = [];
+    this.loadTask();
   }
 
-  addTask(newTask: Task) {
-    console.log(newTask);
-    if (this.task != "") {
-      this.taskList.push(newTask);
-      this.task = "";
+  addTask() {
+    //console.log(newTask);
+    const desc = this.form.controls['description'].value;
+    const id = this.taskList.length + 1;
+    console.log(desc);
+    if (this.task != null) {
+      this.taskList.push(new Task(desc, false, id));
+      this.saveTask();
+      this.task = null;
+      //this.taskList.push(newTask);
     }else{
       alert("Insira uma tarefa!");
     }
@@ -39,6 +50,7 @@ export class ListComponent implements OnInit {
     if (index > -1) {
       this.taskList.splice(index, 1);
     }
+    this.saveTask();
 
   }
 
@@ -53,10 +65,22 @@ export class ListComponent implements OnInit {
 
  }
 
- completeTask(): void{
-
+ doneTask(task: Task){
+   console.log(task);
+   this.saveTask();
+   //taskDone= true;
+   //this.task.done = task.done;
  }
 
+ saveTask(){
+   const save = JSON.stringify(this.taskList);
+   localStorage.setItem('taskList', save);
+ }
+
+ loadTask(){
+   const save = localStorage.getItem('taskList');
+   this.taskList = JSON.parse(save);
+ }
  //serarchTask(taskSerarch: string){
   //const search = TaskList.find((task, index, array) => task === taskSerarch);
  //}
