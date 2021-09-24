@@ -1,29 +1,25 @@
+
 <div>
-
-    <div class="form-group input-group">
-    	<span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
-    	<input name="search" id="txt_consulta" style="margin: 40px;" placeholder="Consultar" type="text" class="form-control">
-    </div>
-
 
     <form [formGroup]="form">
 
         <div style="text-align:center">
-            <input #inputElementRef formControlName="description" [(ngModel)]="task"  class="form-control" type="text" style="border-radius: 1em; width:30%; margin-left: 40px;" placeholder="Digite sua tarefa">
-            <button  type="button" [disabled]="form.invalid" (click)="addTask()" style="border-radius: 1em; margin-top: -5%; margin-left: -17%;" class="btn btn-outline-danger">
+            <input #inputElementRef formControlName="description" [(ngModel)]="task.description"  name="description" class="form-control" type="text" style="border-radius: 1em; width:30%; margin-left: 40px;" placeholder="Digite sua tarefa">
+            <button  type="button" [disabled]="form.invalid" (click)="createTask()" style="border-radius: 1em; margin-top: -5%; margin-left: -17%;" class="btn btn-outline-danger">
                 Nova Tarefa
             </button> 
         </div>
     </form>
     <ul>
         <ol *ngFor="let task of taskList  index as i">
-            <input   (click)="doneTask(task.done)"  class="form-check-input"  style="margin-top: 2%;" type="checkbox" value="true" id="done">
+            <input type="checkbox" [(ngModel)]="task.done" *ngIf="!task.done" (click)="doneTask(task)"  class="form-check-input"  style="margin-top: 2%;"  value="task.done" >
+            <input type="checkbox"  [(ngModel)]="task.done" *ngIf="task.done" (click)="unDoneTask(task)"  class="form-check-input"  style="margin-top: 2%;"  value="task.done" >
             {{ task.description }}
             <span class="edit">
                 <button class="btn btn-outline-danger" *ngIf="task" style="border-radius: 1em; margin: 1%; " (click)='editTask(task)'> Edit </button>
             </span>
             <span class="remove">
-              <button class="btn btn-outline-danger" style="border-radius: 1em; " (click)='removeTask(i)'> X </button>
+              <button class="btn btn-outline-danger" style="border-radius: 1em; " (click)='removeTask(task)'> X </button>
             </span>
         </ol>
     </ul>

@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { StorageService } from './Service/StorageService';
-
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -20,7 +20,8 @@ import { StorageService } from './Service/StorageService';
     BrowserModule,
     FormsModule,
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule 
   ],
   providers: [
     NgForm,

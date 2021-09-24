@@ -1,6 +1,7 @@
-import {  Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Task } from '../model/task.model';
+import { ListService } from '../Service/listService';
 
 
 
@@ -15,74 +16,93 @@ import { Task } from '../model/task.model';
 export class ListComponent implements OnInit {
 
   taskList: Task[] = [];
-  task : Task= null;
+  task: Task;
   public form: FormGroup;
 
-
-  ngOnInit() {
-  }
-
-  constructor(private formB: FormBuilder) {
+  constructor(private formB: FormBuilder, private taskService: ListService) {
     this.form = this.formB.group({
-      description:['', Validators.required]
+      description: ['', Validators.required]
     })
     this.task = null;
     this.taskList = [];
-    this.loadTask();
   }
 
-  addTask() {
-    //console.log(newTask);
-    const desc = this.form.controls['description'].value;
-    const id = this.taskList.length + 1;
-    console.log(desc);
-    if (this.task != null) {
-      this.taskList.push(new Task(desc, false, id));
-      this.saveTask();
-      this.task = null;
-      //this.taskList.push(newTask);
-    }else{
-      alert("Insira uma tarefa!");
+  ngOnInit() {
+    this.task = new Task();
+
+    this.taskService.findAll().subscribe(
+      response => {
+        console.log(this.taskList)
+        this.taskList = response;
+      }
+    );
+  }
+
+  createTask() {
+
+    this.task.description = this.form.controls['description'].value;
+    this.task.done = false;
+
+    if (!this.task.id) {
+      this.taskService.save(this.task).subscribe(
+        data => {
+          console.log(data);
+          this.load();
+          this.task.description='';
+        }
+      )
+    } else {
+      this.taskService.updateItem(this.task).subscribe(data => {
+        this.task = {id:undefined, description:'', done:false};
+        console.log(data);
+        this.load();
+      });
     }
   }
-  
-  removeTask(index: number) {
-    if (index > -1) {
-      this.taskList.splice(index, 1);
-    }
-    this.saveTask();
 
+  removeTask(task: Task) {
+
+    this.taskService.delete(task.id).subscribe(
+      data => {
+
+        this.load();
+      }
+    )
+  }
+
+  load() {
+    this.taskService.findAll().subscribe(
+      data => {
+        this.taskList = data;
+      }
+    )
   }
 
   editTask(taskUpdate) {
+    this.task = taskUpdate;
     console.log(taskUpdate);
-    
-    //this.data = this.data.map(it => {
-     // if(index === it.id) it = taskUpdate;
-      //return it;
-    //})
-    //this.taskListService.updateItem(task);
+  }
 
- }
+  doneTask(taskDone: Task){
+    taskDone.done = true;
+    this.task = taskDone;
 
- doneTask(task: Task){
-   console.log(task);
-   this.saveTask();
-   //taskDone= true;
-   //this.task.done = task.done;
- }
+    this.taskService.updateItem(this.task).subscribe(data => {
+      this.task = {id:undefined, description:'', done:false};
+      console.log(data);
+      this.load();
+    });
+  }
 
- saveTask(){
-   const save = JSON.stringify(this.taskList);
-   localStorage.setItem('taskList', save);
- }
+  unDoneTask(taskDone: Task){
+    taskDone.done = false;
+    this.task = taskDone;
 
- loadTask(){
-   const save = localStorage.getItem('taskList');
-   this.taskList = JSON.parse(save);
- }
- //serarchTask(taskSerarch: string){
-  //const search = TaskList.find((task, index, array) => task === taskSerarch);
- //}
+    this.taskService.updateItem(this.task).subscribe(data => {
+      this.task = {id:undefined, description:'', done:false};
+      console.log(data);
+      this.load();
+    });
+  }
 
 }
